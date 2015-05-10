@@ -1,10 +1,8 @@
 package com.cmpe239.sentimentAnalysis.Model;
 
 import java.util.Date;
-import java.util.List;
 
 import twitter4j.GeoLocation;
-import twitter4j.URLEntity;
 
 public class Tweet {
 	private Date createdAt;
@@ -12,19 +10,31 @@ public class Tweet {
 	private int retweetCount;
 	private long tweetId;
 	private TweetUser user;
-	private List<String> hashTags;
-	private List<URLEntity> urls;
-	private List<TweetUser> mentionedUsers;
 	private String tweetText;
 	private GeoLocation location;
 	private boolean originalTweet;
+	private String sentimentTtype;
+	private  double sentimentScore;
 	
+	public String getSentimentTtype() {
+		return sentimentTtype;
+	}
+	public void setSentimentTtype(String sentimentTtype) {
+		this.sentimentTtype = sentimentTtype;
+	}
+	public double getSentimentScore() {
+		return sentimentScore;
+	}
+	public void setSentimentScore(double sentimentScore) {
+		this.sentimentScore = sentimentScore;
+	}
 	public boolean isOriginalTweet() {
 		return originalTweet;
 	}
 	public void setOriginalTweet(boolean originalTweet) {
 		this.originalTweet = originalTweet;
 	}
+	
 	public Date getCreatedAt() {
 		return createdAt;
 	}
@@ -49,18 +59,6 @@ public class Tweet {
 	public void setTweetId(long tweetId) {
 		this.tweetId = tweetId;
 	}
-	public List<String> getHashTags() {
-		return hashTags;
-	}
-	public void setHashTags(List<String> hashTags) {
-		this.hashTags = hashTags;
-	}
-	public List<URLEntity> getUrls() {
-		return urls;
-	}
-	public void setUrls(List<URLEntity> urls) {
-		this.urls = urls;
-	}
 	public String getTweetText() {
 		return tweetText;
 	}
@@ -79,20 +77,14 @@ public class Tweet {
 	public void setUser(TweetUser user) {
 		this.user = user;
 	}
-	public List<TweetUser> getMentionedUsers() {
-		return mentionedUsers;
-	}
-	public void setMentionedUsers(List<TweetUser> mentionedUsers) {
-		this.mentionedUsers = mentionedUsers;
-	}
-	
+
 	@Override
 	public String toString() {
 		return "Tweet [createdAt=" + createdAt + ", favouriteCount="
 				+ favouriteCount + ", retweetCount=" + retweetCount
-				+ ", tweetId=" + tweetId + ", user=" + user.getScreenName() + ", hashTags="
-				+ hashTags.size() + ", urls=" + urls.size() + ", mentionedUsers="
-				+ mentionedUsers.size() + ", tweetText=" + tweetText + ", location="
-				+ location + ", originalTweet=" + originalTweet + "]";
+				+ ", tweetId=" + tweetId + ", user=" + user + ", tweetText="
+				+ tweetText + ", location=" + location + ", originalTweet="
+				+ originalTweet + ", sentimentTtype=" + sentimentTtype
+				+ ", sentimentScore=" + sentimentScore + "]";
 	}
 }

@@ -1,46 +1,141 @@
 package com.cmpe239.sentimentAnalysis.Manager;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
-import twitter4j.UserMentionEntity;
 
+import com.alchemyapi.api.AlchemyAPI;
+import com.cmpe239.sentimentAnalysis.DAO.HashCountDAO;
+import com.cmpe239.sentimentAnalysis.DAO.TweetResultDAO;
+import com.cmpe239.sentimentAnalysis.DAO.TwitterDAO;
+import com.cmpe239.sentimentAnalysis.Model.HashCount;
+import com.cmpe239.sentimentAnalysis.Model.HashTag;
 import com.cmpe239.sentimentAnalysis.Model.Tweet;
+import com.cmpe239.sentimentAnalysis.Model.TweetResult;
 import com.cmpe239.sentimentAnalysis.Model.TweetUser;
 
 
 public class TwitterManager {
 	
-	public static List<Tweet> converToTweets(List<Status> tweets){
-		List<Tweet> tweetList = new ArrayList<Tweet>();
-		for(Status originalTweet: tweets){
+	public static AlchemyAPI alchemyObj;
+	
+	public static boolean getSearchResults(String query){
+		try{
+			alchemyObj = AlchemyAPI.GetInstanceFromFile("api_key.txt");
+			
+			TweetResult result = new TweetResult();
+			
+			List<Status> originalTweetList = TwitterDAO.getTweetByQuery(query);
+			saveHahTags(originalTweetList);
+			
+			int positiveCount = 0;
+			int negativeCount = 0;
+			int neutralCount = 0;
+			double totalPositiveScore = 0.0;
+			double totalNegativeScore = 0.0;
+		
+			List<Tweet> tweetList = new ArrayList<Tweet>();
+			for(Status originalTweet: originalTweetList){
+				Tweet tweet = converToTweet(originalTweet);
+				tweetList.add(checkSentiments(tweet));
+				
+				if(tweet.getSentimentTtype() != null && tweet.getSentimentTtype().equalsIgnoreCase("positive")){
+					positiveCount++;
+					totalPositiveScore = totalPositiveScore + tweet.getSentimentScore();
+				}else if(tweet.getSentimentTtype() != null && tweet.getSentimentTtype().equalsIgnoreCase("negative")){
+					negativeCount++;
+					totalNegativeScore = totalNegativeScore  + tweet.getSentimentScore();
+				}else if(tweet.getSentimentTtype() != null && tweet.getSentimentTtype().equalsIgnoreCase("neutral")){
+					neutralCount++;
+				}
+			}
+			
+			result.setId("");
+			result.setNegativeCount(negativeCount);
+			result.setPositiveCount(positiveCount);
+			result.setNeutralCount(neutralCount);
+			
+			if(totalNegativeScore != 0.0 && negativeCount != 0){
+				result.setNegativeScore(totalNegativeScore/negativeCount);
+			}
+			
+			if(totalPositiveScore != 0.0 && positiveCount != 0){
+				result.setPositiveScore(totalPositiveScore/positiveCount);
+			}
+				
+			result.setQuery(query);
+			result.setTweetList(tweetList);
+			
+			TweetResultDAO.saveTweetResults(result);
+			System.out.println("Final Result"+result.toString());
+			return true;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public static void saveHahTags(List<Status> tweets)throws Exception{
+		HashMap<String, Integer> tagMap = getUniqueHashTags(tweets);
+		List<HashTag> tagList = new ArrayList<HashTag>();
+		for(String key: tagMap.keySet()){
+			HashTag tag = new HashTag();
+			tag.setTagName(key);
+			tag.setCount(tagMap.get(key));
+			tagList.add(tag);
+		}
+		HashCount hashtagMain = new HashCount();
+		hashtagMain.setId("abcdefg123");
+		hashtagMain.setHashTags(tagList);
+		HashCountDAO.saveHashTags(hashtagMain); 
+	}
+	
+	public static Tweet checkSentiments(Tweet tweet){
+		System.out.println("Inner Tweets"+tweet.toString());
+		Document doc;
+		try {
+			doc = alchemyObj.TextGetTextSentiment(tweet.getTweetText());
+			System.out.println("My Data:"+getStringFromDocument(doc));
+			double sentimentScore = 0.0;
+
+			String sentimentType = doc.getElementsByTagName("type").item(0).getTextContent().trim();
+			if(!sentimentType.equalsIgnoreCase("neutral")){
+				sentimentScore = Double.valueOf(doc.getElementsByTagName("score").item(0).getTextContent());
+			}
+			
+			tweet.setSentimentScore(sentimentScore);
+			tweet.setSentimentTtype(sentimentType);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return tweet;
+	}
+	
+	public static Tweet converToTweet(Status originalTweet){
 			Tweet tweet = new Tweet();
 			tweet.setTweetId(originalTweet.getId());
 			tweet.setTweetText(originalTweet.getText());
 			tweet.setCreatedAt(originalTweet.getCreatedAt());
-			tweet.setHashTags(getHashTagList(originalTweet.getHashtagEntities()));
 			tweet.setUser(getUser(originalTweet.getUser()));
 			tweet.setOriginalTweet(isOriginalTweet(originalTweet));
-			tweet.setMentionedUsers(getMentionedUsers(originalTweet.getUserMentionEntities()));
 			tweet.setFavouriteCount(originalTweet.getFavoriteCount());
 			tweet.setRetweetCount(originalTweet.getRetweetCount());
 			tweet.setLocation(originalTweet.getGeoLocation());
-			tweet.setUrls(Arrays.asList(originalTweet.getURLEntities()));
-			tweetList.add(tweet);
-		}
-		return tweetList;
-	}
-	
-	public static List<String> getHashTagList(HashtagEntity[] tags){
-		List<String> hashTags = new ArrayList<String>();
-		for(HashtagEntity tag: tags){
-			hashTags.add(tag.getText());
-		}
-		return hashTags;
+		return tweet;
 	}
 	
 	public static TweetUser getUser(twitter4j.User user){
@@ -61,30 +156,36 @@ public class TwitterManager {
 		return false;
 	}
 	
-	public static List<TweetUser> getMentionedUsers(UserMentionEntity[] users){
-		List<TweetUser> userList = new ArrayList<TweetUser>();
-		for(UserMentionEntity user : users){
-			TweetUser userTweeted = new TweetUser();
-			userTweeted.setUserId(user.getId());
-			userTweeted.setUserName(user.getName());
-			userTweeted.setScreenName(user.getScreenName());
-			userList.add(userTweeted);
-		}
-		return userList;
-	}
-	
-	public static HashMap<String, Integer> getUniqueHashTags(List<Tweet> tweets){
+	public static HashMap<String, Integer> getUniqueHashTags(List<Status> tweets)throws Exception{
 		HashMap<String, Integer> tagMap = new HashMap<String, Integer>();
-		for(Tweet tweet: tweets){
-			List<String> hashTags = tweet.getHashTags();
-			for (String hashTag : hashTags) {
-				if(tagMap.containsKey(hashTag.trim())){
-					tagMap.put(hashTag.trim(), tagMap.get(hashTag)+1);
+		for(Status tweet: tweets){
+			HashtagEntity[] hashTags = tweet.getHashtagEntities();
+			for (HashtagEntity hashTag : hashTags) {
+				String tag = hashTag.getText().trim();
+				if(tagMap.containsKey(tag)){
+					tagMap.put(tag, tagMap.get(tag)+1);
 				}else{
-					tagMap.put(hashTag.trim(), 1);
+					tagMap.put(tag, 1);
 				}
 			}
 		}
 		return tagMap;
 	}
+	
+	private static String getStringFromDocument(Document doc) {
+        try {
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+
+            return writer.toString();
+        } catch (TransformerException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }
