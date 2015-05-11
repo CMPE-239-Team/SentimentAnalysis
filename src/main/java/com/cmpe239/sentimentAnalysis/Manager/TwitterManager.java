@@ -31,14 +31,14 @@ public class TwitterManager {
 	
 	public static AlchemyAPI alchemyObj;
 	
-	public static boolean getSearchResults(String query){
+	public static boolean getSearchResults(String query, String creationId){
 		try{
 			alchemyObj = AlchemyAPI.GetInstanceFromFile("api_key.txt");
 			
 			TweetResult result = new TweetResult();
 			
 			List<Status> originalTweetList = TwitterDAO.getTweetByQuery(query);
-			saveHahTags(originalTweetList);
+			saveHahTags(originalTweetList, creationId);
 			
 			int positiveCount = 0;
 			int negativeCount = 0;
@@ -62,7 +62,7 @@ public class TwitterManager {
 				}
 			}
 			
-			result.setId("");
+			result.setId(creationId);
 			result.setNegativeCount(negativeCount);
 			result.setPositiveCount(positiveCount);
 			result.setNeutralCount(neutralCount);
@@ -87,7 +87,7 @@ public class TwitterManager {
 		}
 	}
 	
-	public static void saveHahTags(List<Status> tweets)throws Exception{
+	public static void saveHahTags(List<Status> tweets, String creationId)throws Exception{
 		HashMap<String, Integer> tagMap = getUniqueHashTags(tweets);
 		List<HashTag> tagList = new ArrayList<HashTag>();
 		for(String key: tagMap.keySet()){
@@ -97,7 +97,7 @@ public class TwitterManager {
 			tagList.add(tag);
 		}
 		HashCount hashtagMain = new HashCount();
-		hashtagMain.setId("abcdefg123");
+		hashtagMain.setId(creationId);
 		hashtagMain.setHashTags(tagList);
 		HashCountDAO.saveHashTags(hashtagMain); 
 	}
@@ -125,7 +125,7 @@ public class TwitterManager {
 		return tweet;
 	}
 	
-	public static Tweet converToTweet(Status originalTweet){
+	public static Tweet converToTweet(Status originalTweet)throws Exception{
 			Tweet tweet = new Tweet();
 			tweet.setTweetId(originalTweet.getId());
 			tweet.setTweetText(originalTweet.getText());
@@ -138,7 +138,7 @@ public class TwitterManager {
 		return tweet;
 	}
 	
-	public static TweetUser getUser(twitter4j.User user){
+	public static TweetUser getUser(twitter4j.User user)throws Exception{
 		TweetUser userTweeted = new TweetUser();
 		userTweeted.setUserId(user.getId());
 		userTweeted.setUserName(user.getName());
@@ -149,7 +149,7 @@ public class TwitterManager {
 		return userTweeted;
 	}
 	
-	public static boolean isOriginalTweet(Status tweet){
+	public static boolean isOriginalTweet(Status tweet)throws Exception{
 		if(tweet.getInReplyToScreenName() != null){
 			return true;
 		}

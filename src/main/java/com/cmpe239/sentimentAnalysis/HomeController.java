@@ -1,45 +1,34 @@
 package com.cmpe239.sentimentAnalysis;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.Locale;
-import java.util.Scanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cmpe239.sentimentAnalysis.Manager.TwitterManager;
 
 @Controller
 public class HomeController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String home(Locale locale, Model model) {
-		logger.info("Welcome home! The client locale is {}.", locale);
-		
-		Date date = new Date();
-		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
-		
-		String formattedDate = dateFormat.format(date);
-		
-		model.addAttribute("serverTime", formattedDate );
-		
-		
-		 System.out.print("Please choose your Keyword:\t");
-		 Scanner input = new Scanner(System.in);
-         String keyword = input.nextLine();
-         TwitterManager.getSearchResults(keyword);
-         input.close();
-		
-		
-		
-		return "home";
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+	public @ResponseBody String home(Locale locale, Model model, String query, String creationId) {
+		 if(query != null && creationId != null){
+			 /*System.out.print("Please choose your Keyword:\t");
+			 Scanner input = new Scanner(System.in);
+	         String keyword = input.nextLine();*/
+	         boolean isSucceed = TwitterManager.getSearchResults(query, creationId);
+	         /*input.close();*/
+	         
+	         if(isSucceed)
+	        	 return "SUCCESS";
+	         else
+	        	 return "FAILURE";	
+		 }else{
+			 return "FAILURE";
+		 }
 	}
 	
 }

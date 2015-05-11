@@ -7,6 +7,8 @@ public class ApplicationConstants {
 	public static final String DATABASE = "tsa_demo";
 	public static final String URL = "mongodb://myuser:password@ds031962.mongolab.com:31962/tsa_demo";
 	
+	public static final String ALCHEMY_API_KEY = "c8269ddb36a3bb1f8e29bfd21574dfcf24b9ea69";
+	
 	public static final String CONSUMER_KEY = "0xPoRgArfxxLkmCrkMiIGfa8v";
 	public static final String CONSUMER_SECRET= "4wMfly96g5KExX6CoQq12nsHm2ssCRHB2HzO8xPwZ7ZCsfhAqd";
 	public static final String ACCESS_TOKEN = "404332231-UMGNcK1N2RwMWyyEnbQhX8Ie2IzoLeTvY5nUk32V";
