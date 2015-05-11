@@ -1,22 +1,15 @@
 package com.cmpe239.sentimentAnalysis.Manager;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
-import com.alchemyapi.api.AlchemyAPI;
+import com.cmpe239.sentimentAnalysis.AlchemyAPI;
 import com.cmpe239.sentimentAnalysis.DAO.HashCountDAO;
 import com.cmpe239.sentimentAnalysis.DAO.TweetResultDAO;
 import com.cmpe239.sentimentAnalysis.DAO.TwitterDAO;
@@ -79,7 +72,7 @@ public class TwitterManager {
 			result.setTweetList(tweetList);
 			
 			TweetResultDAO.saveTweetResults(result);
-			System.out.println("Final Result"+result.toString());
+			/*System.out.println("Final Result"+result.toString());*/
 			return true;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -103,11 +96,11 @@ public class TwitterManager {
 	}
 	
 	public static Tweet checkSentiments(Tweet tweet){
-		System.out.println("Inner Tweets"+tweet.toString());
+		/*System.out.println("Inner Tweets"+tweet.toString());*/
 		Document doc;
 		try {
 			doc = alchemyObj.TextGetTextSentiment(tweet.getTweetText());
-			System.out.println("My Data:"+getStringFromDocument(doc));
+			/*System.out.println("My Data:"+getStringFromDocument(doc));*/
 			double sentimentScore = 0.0;
 
 			String sentimentType = doc.getElementsByTagName("type").item(0).getTextContent().trim();
@@ -172,7 +165,7 @@ public class TwitterManager {
 		return tagMap;
 	}
 	
-	private static String getStringFromDocument(Document doc) {
+/*	private static String getStringFromDocument(Document doc) {
         try {
             DOMSource domSource = new DOMSource(doc);
             StringWriter writer = new StringWriter();
@@ -187,5 +180,5 @@ public class TwitterManager {
             ex.printStackTrace();
             return null;
         }
-    }
+    }*/
 }

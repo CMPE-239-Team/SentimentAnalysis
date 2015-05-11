@@ -34,7 +34,7 @@ public class TwitterDAO {
 	            query.setCount(ApplicationConstants.MAX_PER_PAGE);
 	            
 	            result = twitter.search(query);
-	            System.out.println("Getting Tweets...");
+//	            System.out.println("Getting Tweets...");
 	            do{
 	            	if(tweets.size()+ ApplicationConstants.MAX_PER_PAGE <= ApplicationConstants.MAX_TWEETS){
 	            		tweets.addAll(result.getTweets());
@@ -46,16 +46,17 @@ public class TwitterDAO {
 	            		break;
 	            	}
 	            }while(query !=null);
-	            printTweetDetails(tweets);
+//	            printTweetDetails(tweets);
 	        } catch (TwitterException te) {
-	            System.out.println("te.getErrorCode() " + te.getErrorCode());
+	        	te.printStackTrace();
+	           /* System.out.println("te.getErrorCode() " + te.getErrorCode());
 	            System.out.println("te.getExceptionCode() " + te.getExceptionCode());
 	            System.out.println("te.getStatusCode() " + te.getStatusCode());
 	            if (te.getStatusCode() == 401) {
 	                System.out.println("Twitter Error : \nAuthentication credentials (https://dev.twitter.com/pages/auth) were missing or incorrect.\nEnsure that you have set valid consumer key/secret, access token/secret, and the system clock is in sync.");
 	            } else {
 	                System.out.println("Twitter Error : " + te.getMessage());
-	            }
+	            }*/
 	        }
 	    } 
 	    return tweets;
@@ -77,19 +78,19 @@ public class TwitterDAO {
         return cb;
  	}
 	
-	private static void printTweetDetails(List<Status> tweets) {
+	/*private static void printTweetDetails(List<Status> tweets) {
 		System.out.println("\n SIZE>>>>>>>>>>>>>>>>>>>>>>>>>"+tweets.size());
  		System.out.println("\nWelcome to Tweets"+tweets.size());
 // 		List<Tweet> newTweets = TwitterManager.converToTweets(tweets);
 // 		System.out.println("New Size"+newTweets.size());
  		
- 		/*HashMap<String, Integer> tagMap = TwitterManager.getUniqueHashTags(newTweets);
+ 		HashMap<String, Integer> tagMap = TwitterManager.getUniqueHashTags(newTweets);
  		for(String key : tagMap.keySet()){
  			System.out.println("[ "+key+" , "+tagMap.get(key)+" ]");
- 		}*/
- 		/*for (Tweet tweet : newTweets) {
+ 		}
+ 		for (Tweet tweet : newTweets) {
 			System.out.println(tweet.toString());
-		}*/
-	}
+		}
+	}*/
 	
 }

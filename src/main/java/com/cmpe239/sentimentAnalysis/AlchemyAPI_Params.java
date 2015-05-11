@@ -1,9 +1,7 @@
-package com.alchemyapi.api;
+package com.cmpe239.sentimentAnalysis;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
-
 
 public class AlchemyAPI_Params {
 	public static final String OUTPUT_XML = "xml";

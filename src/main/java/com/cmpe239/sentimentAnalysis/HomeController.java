@@ -1,5 +1,6 @@
 package com.cmpe239.sentimentAnalysis;
 
+import java.util.Date;
 import java.util.Locale;
 
 import org.springframework.stereotype.Controller;
@@ -31,4 +32,9 @@ public class HomeController {
 		 }
 	}
 	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home(Locale locale, Model model) {
+		model.addAttribute("serverTime", new Date());
+		return "home";
+	}
 }
