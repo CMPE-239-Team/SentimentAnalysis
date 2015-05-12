@@ -15,18 +15,14 @@ import com.cmpe239.sentimentAnalysis.Manager.TwitterManager;
 public class HomeController {
 	
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
-	public @ResponseBody String home(Locale locale, Model model, String query, String creationId) {
-		 if(query != null && creationId != null){
+	public @ResponseBody String home(Locale locale, Model model, String query) {
+		 if(query != null){
 			 /*System.out.print("Please choose your Keyword:\t");
 			 Scanner input = new Scanner(System.in);
 	         String keyword = input.nextLine();*/
-	         boolean isSucceed = TwitterManager.getSearchResults(query, creationId);
+	         String result = TwitterManager.getSearchResults(query);
 	         /*input.close();*/
-	         
-	         if(isSucceed)
-	        	 return "SUCCESS";
-	         else
-	        	 return "FAILURE";	
+        	 return result;	
 		 }else{
 			 return "FAILURE";
 		 }

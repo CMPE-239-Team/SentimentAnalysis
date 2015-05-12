@@ -24,14 +24,14 @@ public class TwitterManager {
 	
 	public static AlchemyAPI alchemyObj;
 	
-	public static boolean getSearchResults(String query, String creationId){
+	public static String getSearchResults(String query){
 		try{
 			alchemyObj = AlchemyAPI.GetInstanceFromFile("api_key.txt");
 			
 			TweetResult result = new TweetResult();
 			
 			List<Status> originalTweetList = TwitterDAO.getTweetByQuery(query);
-			saveHahTags(originalTweetList, creationId);
+			HashCount hashTag = saveHahTags(originalTweetList);
 			
 			int positiveCount = 0;
 			int negativeCount = 0;
@@ -55,7 +55,7 @@ public class TwitterManager {
 				}
 			}
 			
-			result.setId(creationId);
+			result.setId(hashTag.getId());
 			result.setNegativeCount(negativeCount);
 			result.setPositiveCount(positiveCount);
 			result.setNeutralCount(neutralCount);
@@ -73,14 +73,14 @@ public class TwitterManager {
 			
 			TweetResultDAO.saveTweetResults(result);
 			/*System.out.println("Final Result"+result.toString());*/
-			return true;
+			return hashTag.getId().trim();
 		}catch(Exception e){
 			e.printStackTrace();
-			return false;
+			return "FAILURE";
 		}
 	}
 	
-	public static void saveHahTags(List<Status> tweets, String creationId)throws Exception{
+	public static HashCount saveHahTags(List<Status> tweets)throws Exception{
 		HashMap<String, Integer> tagMap = getUniqueHashTags(tweets);
 		List<HashTag> tagList = new ArrayList<HashTag>();
 		for(String key: tagMap.keySet()){
@@ -90,9 +90,9 @@ public class TwitterManager {
 			tagList.add(tag);
 		}
 		HashCount hashtagMain = new HashCount();
-		hashtagMain.setId(creationId);
 		hashtagMain.setHashTags(tagList);
-		HashCountDAO.saveHashTags(hashtagMain); 
+		HashCountDAO.saveHashTags(hashtagMain);
+		return hashtagMain;
 	}
 	
 	public static Tweet checkSentiments(Tweet tweet){
