@@ -24,7 +24,7 @@ public class ApplicationConstants {
 	public static final String ACCESS_TOKEN3 = "404332231-zhxSXnUOWr8zzCS2pkNTN000WaX5bdq0cCOpE5nI";
 	public static final String ACCESS_TOKEN_SECRET3 = "jpt6y2cZh0wpKkP591dgFG6Tn54C3lBTwc356rFj5SyiS";
 	
-	public static final int MAX_TWEETS = 100;
+	public static final int MAX_TWEETS = 300;
 	public static final int MAX_PER_PAGE = 100;
 	
 	public static TwitterAuth getConnectionSettings(int configNumber){

@@ -16,6 +16,7 @@ public class HomeController {
 	
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
 	public @ResponseBody String home(Locale locale, Model model, String query) {
+		System.out.println("Hello");
 		 if(query != null){
 			 /*System.out.print("Please choose your Keyword:\t");
 			 Scanner input = new Scanner(System.in);
